@@ -1,0 +1,9 @@
+.env
+.breakpoints
+.replit
+db.json
+poetry.lock
+pyproject.toml
+requirements.txt
+tutorInfo.db
+test.py
