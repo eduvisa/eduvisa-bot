@@ -19,7 +19,7 @@ class Balance(commands.Cog):
         wb = balance[0]
 
         embed = discord.Embed(
-            title=f"{member.name}'s Balance", description=f"Wallet: **{balance[0]} 🪙**\nBank: **{balance[1]} 🪙**", color=discord.Color.brand_red())
+            title=f"{member.name}'s Balance", description=f"Wallet: **{balance[0]} 🪙**\nBank: **{balance[1]} 🪙**", color=discord.Color.dark_red())
         members.increaseCommandsUsed(ctx)
         return await ctx.respond(embed=embed)
 
