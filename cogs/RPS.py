@@ -55,7 +55,17 @@ async def validateResult(userChoice, interaction, botChoice, author, ctx,bet=Non
         await interaction.response.edit_message(embed=embed, view=None)
 
     members.increaseCommandsUsed(ctx)
+async def validateResultWithMembers(userChoice, memberChoice, member, interaction, ctx, bet=None):
+    pair = [userChoice, memberChoice]
+    if pair in winningPairs:
+        print(f"{ctx.author} has won!")
+    elif userChoice == memberChoice:
+        print("They have tied the game!")
+    
+    else:
+        print(f"{member} has won!")
 
+    pass
 class NoMemberRPS(discord.ui.View):
  def __init__(self, ctx, client, bet):
      super().__init__(timeout=35)
@@ -85,6 +95,31 @@ class NoMemberRPS(discord.ui.View):
     else:
         return True
 
+
+
+async def recordResponses(ctx, member, item:str, interaction, playerVotes, playerChoices):
+    
+
+    choice = random.choice(list(playerVotes))
+    if interaction.user == choice:
+        if playerVotes[choice] > 0:
+            await interaction.response.send_message("You have already responded!", ephemeral=True)
+        else:
+            await interaction.response.send_message("Recorded your response!", ephemeral=True)
+            playerVotes[choice] = 1
+            playerChoices[choice] = item
+            playerVotes.pop(choice)
+
+    if len(playerVotes) == 0:
+        print(
+            f"{ctx.author} chose {playerChoices[ctx.author]}")
+        print(
+            f"{member} chose {playerChoices[member]}")
+        print("Both players have inputted their response")
+        validateResultWithMembers(playerChoices[ctx.author], playerChoices[member], member, interaction, ctx, None)
+
+
+
 class MemberConsent(discord.ui.View):
     def __init__(self, member, author, ctx):
         self.member = member
@@ -100,14 +135,61 @@ class MemberConsent(discord.ui.View):
             return True
     @button(label="👍 Alright!", style=discord.ButtonStyle.green)
     async def button_callback(self, button, interaction):
+        chance = random.choice([self.member, self.author])
+        view = PersonRPS(self.member, self.ctx, chance)
+        embed = discord.Embed(title="Rock Paper Scisssors", description="Please pick your choices", color = discord.Color.nitro_pink())
+        embed.set_footer(text="You have 30 seconds to respond!")
+        await interaction.response.edit_message(content=f"{self.author.mention}\n{self.member.mention}",embed=embed, view = view)
         button.disabled = True
     
     @button(label="❌ NO!", style=discord.ButtonStyle.red)
     async def button_callback1(self, button, interaction):
         for items in self.children : items.disabled = True
-        ##print("Pressed NO!")
         await interaction.response.edit_message(view=self)
         return await interaction.followup.send("too bad", view=None)
+
+class PersonRPS(discord.ui.View):
+    def __init__(self, member, ctx, chance):
+        self.member = member
+        self.ctx = ctx
+        self.playerVotes = {
+            member : 0,
+            ctx.author : 0
+        }
+        self.playerChoices = {
+            member : None,
+            ctx.author : None
+        }
+
+        super().__init__(timeout=30)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user not in self.playerVotes.keys():
+            await interaction.response.send_message("yeah i don't think you're supposed to do that or you have already responded.... 🤦‍♂️", ephemeral=True)
+            return False
+        else:
+            return True
+
+    @discord.ui.button(label="👊", style=discord.ButtonStyle.primary)
+    async def button1(self, button, interaction):
+        print("Registered button press : Rock")
+        await recordResponses(self.ctx, self.member, "Rock", interaction, self.playerVotes, self.playerChoices)
+    
+    @discord.ui.button(label="🖐️", style=discord.ButtonStyle.primary)
+    async def button2(self, button, interaction):
+        print("Registered Button press : Paper")
+        await recordResponses(self.ctx, self.member, "Paper", interaction, self.playerVotes, self.playerChoices)
+    
+    @discord.ui.button(label="✌️", style=discord.ButtonStyle.primary)
+    async def button3(self, button, interaction):
+        print("Registered Button press : Scissors")
+
+        await recordResponses(self.ctx, self.member, "Scissors", interaction, self.playerVotes, self.playerChoices)
+
+
+
+
+
 
 class RPS(commands.Cog):
     def __init__(self, client) -> None:
