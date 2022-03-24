@@ -8,7 +8,8 @@ import aiohttp
 import members
 import random
 
-randomFooters = ["yay","😎","wow so cool","great job!","meh","yo thats sick!!"]
+randomFooters = ["yay", "😎", "wow so cool",
+                 "great job!", "meh", "yo thats sick!!"]
 
 class Leaderboard(commands.Cog):
  def __init__(self,client) -> None:

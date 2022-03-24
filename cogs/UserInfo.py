@@ -54,7 +54,7 @@ class Userinfo(commands.Cog):
             embed.add_field(name="Net Worth",
                             value=f"{netWorth} EdCoins 🪙", inline=False)
             embed.set_thumbnail(url=member.display_avatar)
-            embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url = ctx.author.display_avatar)
+            embed.set_footer(text=f"Requested by {ctx.author.name}", icon_url = ctx.author.display_avatar)
             members.increaseCommandsUsed(ctx)
             await ctx.respond(embed=embed)
 
