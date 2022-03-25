@@ -70,7 +70,7 @@ async def validateResultWithMembers(userChoice, memberChoice, member, interactio
         
         if bet != None:
             embed.add_field(
-                name="Winning Amount", value=f"{ctx.author.mention} won the bet so I have credited **{bet} EdCoins 🪙** to their wallet!\nAlso, {member.mention} loses that much amount 😔", inline=False)
+                name="Winning Amount", value=f"{ctx.author.mention} won the bet so I have credited **{bet} EdCoins 🪙** to their wallet!\n\nAlso, {member.mention} loses that much amount 😔", inline=False)
             members.updateValue(ctx.author.id, ctx.author,
                                 "walletBalance", f"walletBalance+{bet}")
             members.updateValue(member.id, member, "walletBalance", f"walletBalance-{bet}")
@@ -100,7 +100,7 @@ async def validateResultWithMembers(userChoice, memberChoice, member, interactio
 
         if bet != None:
             embed.add_field(
-                name="Winning Amount", value=f"{member.mention} won the bet so I have credited **{bet} EdCoins 🪙** to their wallet!\nAlso, {ctx.author.mention} loses that much amount 😔", inline=False)
+                name="Winning Amount", value=f"{member.mention} won the bet so I have credited **{bet} EdCoins 🪙** to their wallet!\n\nAlso, {ctx.author.mention} loses that much amount 😔", inline=False)
             members.updateValue(ctx.author.id, ctx.author,
                                 "walletBalance", f"walletBalance-{bet}")
             members.updateValue(member.id, member,
