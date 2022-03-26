@@ -16,7 +16,7 @@ emojis = {
 }
 
 
-async def validateResult(userChoice, interaction, botChoice, author, ctx,bet=None):
+async def validateResult(userChoice, interaction, botChoice, author, ctx, view, bet=None):
     pair = [userChoice, botChoice]
     if pair in winningPairs:
         embed = discord.Embed(title="You won the game",
@@ -107,32 +107,34 @@ async def validateResultWithMembers(userChoice, memberChoice, member, interactio
                                 "walletBalance", f"walletBalance+{bet}")
 
         embed.set_footer(text=f"{random.choice(randomFooters)}")
-
+    members.increaseCommandsUsed(ctx)
+    members.updateValue(member.id, member, "commandsUsed", "commandsUsed + 1")
     await interaction.followup.send(content=f"{member.mention}\n{ctx.author.mention}", embed=embed, view=None)
 
     
 
 class NoMemberRPS(discord.ui.View):
- def __init__(self, ctx, client, bet):
-     super().__init__(timeout=35)
+ def __init__(self, ctx, client, bet, message):
+     super().__init__(timeout=5)
      self.randChoice = random.choice(["Rock", "Paper", "Scissors"])
      self.ctx = ctx
      self.client = client
      self.bet = bet
+     self.message = message
 
  @discord.ui.button(emoji="👊", style=discord.ButtonStyle.primary)
  async def button_callback(self, button, interaction):
-   await validateResult("Rock",interaction,self.randChoice,self.ctx.author, self.ctx, bet=self.bet)
+   await validateResult("Rock", interaction, self.randChoice, self.ctx.author, self.ctx, self, bet=self.bet)
 
  @discord.ui.button(emoji="🖐", style=discord.ButtonStyle.primary)
  async def button_callback1(self, button, interaction):
      await validateResult("Paper", interaction, self.randChoice,
-                    self.ctx.author, self.ctx, bet=self.bet)
+                    self.ctx.author, self.ctx, self , bet=self.bet)
 
  @discord.ui.button(emoji="✌", style=discord.ButtonStyle.primary)
  async def button_callback2(self, button, interaction):
      await validateResult("Scissors", interaction, self.randChoice,
-                    self.ctx.author, self.ctx, bet=self.bet)
+                          self.ctx.author, self.ctx, self, bet=self.bet)
 
  async def interaction_check(self, interaction: discord.Interaction) -> bool:
     if interaction.user != self.ctx.author:
@@ -140,6 +142,12 @@ class NoMemberRPS(discord.ui.View):
         return False
     else:
         return True
+
+ async def on_timeout(self) -> None:
+    for child in self.children:
+         child.disabled = True
+    await self.ctx.edit(view = self)
+    await self.ctx.respond("oops")
 
 
 
@@ -160,12 +168,19 @@ class MemberConsent(discord.ui.View):
             return False
         else:
             return True
+
+    async def on_timeout(self) -> None:
+        for child in self.children:
+            child.disabled = True
+        await self.ctx.edit(view=self)
+        await self.ctx.respond("well thats sad :(")
     @button(label="👍 Alright!", style=discord.ButtonStyle.green)
     async def button_callback(self, button, interaction):
         chance = random.choice([self.member, self.author])
         view = PersonRPS(self.member, self.ctx, self.bet)
         embed = discord.Embed(title="Rock Paper Scisssors", description="Please pick your choices", color = discord.Color.nitro_pink())
         embed.set_footer(text="You have 30 seconds to respond!")
+        self.timeout = 0
         await interaction.response.edit_message(content=f"{self.author.mention}\n{self.member.mention}",embed=embed, view = view)
         button.disabled = True
     
@@ -173,6 +188,7 @@ class MemberConsent(discord.ui.View):
     async def button_callback1(self, button, interaction):
         for items in self.children : items.disabled = True
         await interaction.response.edit_message(view=self)
+        self.timeout = 0
         return await interaction.followup.send("too bad", view=None)
 
 class PersonRPS(discord.ui.View):
@@ -188,7 +204,7 @@ class PersonRPS(discord.ui.View):
             ctx.author : None
         }
         self.bet = bet
-        super().__init__(timeout=30)
+        super().__init__(timeout=7)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user not in self.playerVotes.keys():
@@ -210,6 +226,36 @@ class PersonRPS(discord.ui.View):
 
         if len(self.playerVotes) == 0:
             await validateResultWithMembers(self.playerChoices[self.ctx.author], self.playerChoices[self.member], self.member, interaction, self.ctx, self.bet)
+
+    async def on_timeout(self) -> None:
+        global embed
+        for child in self.children:
+            child.disabled = True
+        
+        if len(self.playerVotes) != 2:
+            
+            memberLeft = list(self.playerVotes.keys())[0]
+            choicec = self.playerChoices
+            choicec.pop(memberLeft)
+            if self.bet != None:
+                embed = discord.Embed(title=f"{memberLeft} did not respond!", color = discord.Color.purple())
+                embed.description = f"Since they have decided to run away, I have credited the bet amount to {list(choicec.keys())[0].mention}\nBet Amount : **{self.bet} EdCoins 🪙**"
+                embed.set_footer(text = "P.S. Don't want the amount? Give them the amount back by using /gift")
+                members.updateValue(list(choicec.keys())[
+                                    0].id, list(choicec.keys())[0], "commandsUsed", "commandsUsed + 1")
+            else:
+                embed = discord.Embed(
+                    title=f"{memberLeft} did not respond!", color=discord.Color.purple())
+                embed.description = f"They just straight up **took-off**"
+                members.updateValue(list(choicec.keys())[
+                                    0].id, list(choicec.keys())[0], "commandsUsed", "commandsUsed + 1")
+
+
+
+
+        await self.ctx.edit(view=self)
+        return await self.ctx.respond(embed=embed)
+
 
     @discord.ui.button(label="👊", style=discord.ButtonStyle.primary)
     async def button1(self, button, interaction):
@@ -252,9 +298,12 @@ class RPS(commands.Cog):
 
                         except:
                             return await ctx.send(embed=discord.Embed(title="Invalid Value", description=f"**'{bet}'** is not a valid value", color=discord.Color.red()))
-
-                view = NoMemberRPS(ctx,self.client,bet)
-                await ctx.respond(embed=discord.Embed(title="Pick rock, paper or scissors!",color=discord.Color.purple()),view=view)
+                
+                if bet == 0: bet = None
+                view = NoMemberRPS(ctx, self.client, bet, None)
+                message = await ctx.respond(embed=discord.Embed(title="Pick rock, paper or scissors!", color=discord.Color.purple()), view=view)
+                
+                
         
             else:
                 if member == ctx.author:
@@ -267,7 +316,11 @@ class RPS(commands.Cog):
                         bet = cash
                     else:
                         try:
-                            bet=int(bet)
+                            if bet >= 0:
+                                bet=int(bet)
+                            else:
+                                return await ctx.send(embed=discord.Embed(title="🤔", color=discord.Color.red()))
+
                         except:
                             return await ctx.send(embed=discord.Embed(title="Invalid Value", description=f"**'{bet}'** is not a valid value", color=discord.Color.red()))
 
@@ -275,7 +328,7 @@ class RPS(commands.Cog):
                         return await ctx.respond(embed=discord.Embed(title="Not enough money", description=f"{member.mention} does not have **{bet} EdCoins 🪙** in their wallet!", color=discord.Color.red()))
                     if cash < bet:
                         return await ctx.respond(embed=discord.Embed(title="Not enough money", description=f"You currently do not have **{bet} EdCoins 🪙** in your wallet!", color=discord.Color.red()))
-
+                    if bet == 0: bet = None
                 if bet != None:
                     await ctx.respond(f"{member.mention}", embed=discord.Embed(title=f"Game of RPS with {ctx.author}", description=f"Do you want to bet **{bet} EdCoins 🪙** on a game of rock-paper-scissors with {ctx.author.mention}?", color=discord.Color.nitro_pink()), view=MemberConsent(member, ctx.author, ctx, bet), ephemeral=True)
 
