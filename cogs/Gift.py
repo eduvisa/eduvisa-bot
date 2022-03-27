@@ -33,6 +33,8 @@ class MemberConsent(discord.ui.View):
     @discord.ui.button(label="👍 Alright!", style=discord.ButtonStyle.green)
     async def button_callback(self, button, interaction):
         members.updateValue(self.member.id, self.member, "walletBalance", f"walletBalance + {self.coins}")
+        members.updateValue(self.ctx.author.id, self.ctx.author,
+                            "walletBalance", f"walletBalance - {self.coins}")
         members.increaseCommandsUsed(self.ctx)
         embed = discord.Embed(title = f"{self.ctx.author.name} gifted to {self.member.name}", color = discord.Color.green())
         memberBalance = members.getValue("walletBalance", self.member.id, self.member, False)
@@ -68,7 +70,7 @@ class Gift(commands.Cog):
     @slash_command(name = "gift", description = "Gift some of your EdCoins 🪙 to a user")
     async def gift(self, ctx, member:Option(discord.Member, "Member to gift coins to", required = True), coins:Option(str, "Coins to gift (max and all are allowed)", required = True)):
         if member == ctx.author or member == self.client.user:
-            return await ctx.send(embed=discord.Embed(title="🤔", color=discord.Color.red()))
+            return await ctx.respond(embed=discord.Embed(title="🤔", color=discord.Color.red()))
 
         await ctx.defer()
         walletBalance = members.getValue("walletBalance", ctx.author.id, ctx.author, False)

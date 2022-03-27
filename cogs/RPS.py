@@ -109,6 +109,7 @@ async def validateResultWithMembers(userChoice, memberChoice, member, interactio
         embed.set_footer(text=f"{random.choice(randomFooters)}")
     members.increaseCommandsUsed(ctx)
     members.updateValue(member.id, member, "commandsUsed", "commandsUsed + 1")
+    await ctx.delete()
     await interaction.followup.send(content=f"{member.mention}\n{ctx.author.mention}", embed=embed, view=None)
 
     
@@ -254,6 +255,9 @@ class PersonRPS(discord.ui.View):
                 embed.set_footer(text = "P.S. Don't want the amount? Give them the amount back by using /gift")
                 members.updateValue(list(choicec.keys())[
                                     0].id, list(choicec.keys())[0], "commandsUsed", "commandsUsed + 1")
+                members.updateValue(list(choicec.keys())[
+                                    0].id, list(choicec.keys())[0], "walletBalance", f"walletBalance + {self.bet}")
+                members.updateValue(memberLeft.id, memberLeft, "walletBalance", f"walletBalance - {self.bet}")
             else:
                 embed = discord.Embed(
                     title=f"{memberLeft} did not respond!", color=discord.Color.purple())
