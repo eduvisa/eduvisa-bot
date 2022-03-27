@@ -115,7 +115,7 @@ async def validateResultWithMembers(userChoice, memberChoice, member, interactio
 
 class NoMemberRPS(discord.ui.View):
  def __init__(self, ctx, client, bet, message):
-     super().__init__(timeout=5)
+     super().__init__(timeout=30)
      self.randChoice = random.choice(["Rock", "Paper", "Scissors"])
      self.ctx = ctx
      self.client = client
@@ -148,6 +148,7 @@ class NoMemberRPS(discord.ui.View):
          child.disabled = True
     await self.ctx.edit(view = self)
     await self.ctx.respond("oops")
+    return
 
 
 
@@ -174,6 +175,7 @@ class MemberConsent(discord.ui.View):
             child.disabled = True
         await self.ctx.edit(view=self)
         await self.ctx.respond("well thats sad :(")
+        return
     @button(label="👍 Alright!", style=discord.ButtonStyle.green)
     async def button_callback(self, button, interaction):
         chance = random.choice([self.member, self.author])
@@ -204,7 +206,7 @@ class PersonRPS(discord.ui.View):
             ctx.author : None
         }
         self.bet = bet
-        super().__init__(timeout=7)
+        super().__init__(timeout=30)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user not in self.playerVotes.keys():
@@ -290,6 +292,8 @@ class RPS(commands.Cog):
 
                     if bet.lower() == "max" or bet.lower() == "all":
                         bet = cash
+                        if bet < 0:
+                            return await ctx.send(embed=discord.Embed(title="🤔", color=discord.Color.red()))
                     else:
                         try:
                             bet = int(bet)
@@ -316,9 +320,8 @@ class RPS(commands.Cog):
                         bet = cash
                     else:
                         try:
-                            if bet >= 0:
-                                bet=int(bet)
-                            else:
+                            bet = int(bet)
+                            if bet < 0 :
                                 return await ctx.send(embed=discord.Embed(title="🤔", color=discord.Color.red()))
 
                         except:
