@@ -121,21 +121,24 @@ class NoMemberRPS(discord.ui.View):
      self.client = client
      self.bet = bet
      self.message = message
+     self.isDone = False
 
  @discord.ui.button(emoji="👊", style=discord.ButtonStyle.primary)
  async def button_callback(self, button, interaction):
    await validateResult("Rock", interaction, self.randChoice, self.ctx.author, self.ctx, self, bet=self.bet)
+   self.isDone = True
 
  @discord.ui.button(emoji="🖐", style=discord.ButtonStyle.primary)
  async def button_callback1(self, button, interaction):
      await validateResult("Paper", interaction, self.randChoice,
                     self.ctx.author, self.ctx, self , bet=self.bet)
+     self.isDone = True
 
  @discord.ui.button(emoji="✌", style=discord.ButtonStyle.primary)
  async def button_callback2(self, button, interaction):
      await validateResult("Scissors", interaction, self.randChoice,
                           self.ctx.author, self.ctx, self, bet=self.bet)
-
+     self.isDone = True
  async def interaction_check(self, interaction: discord.Interaction) -> bool:
     if interaction.user != self.ctx.author:
         await interaction.response.send_message("yeah good luck playing someone else's game", ephemeral=True)
@@ -147,7 +150,8 @@ class NoMemberRPS(discord.ui.View):
     for child in self.children:
          child.disabled = True
     await self.ctx.edit(view = self)
-    await self.ctx.respond("oops")
+    if not self.isDone:
+        await self.ctx.respond("oops")
     return
 
 
@@ -161,6 +165,7 @@ class MemberConsent(discord.ui.View):
         self.author = author
         self.ctx = ctx
         self.bet = bet
+        self.isDone = False
         super().__init__(timeout=30)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -174,7 +179,8 @@ class MemberConsent(discord.ui.View):
         for child in self.children:
             child.disabled = True
         await self.ctx.edit(view=self)
-        await self.ctx.respond("well thats sad :(")
+        if not self.isDone:
+            await self.ctx.respond("well thats sad :(")
         return
     @button(label="👍 Alright!", style=discord.ButtonStyle.green)
     async def button_callback(self, button, interaction):
@@ -183,6 +189,7 @@ class MemberConsent(discord.ui.View):
         embed = discord.Embed(title="Rock Paper Scisssors", description="Please pick your choices", color = discord.Color.nitro_pink())
         embed.set_footer(text="You have 30 seconds to respond!")
         self.timeout = 0
+        self.isDone = True
         await interaction.response.edit_message(content=f"{self.author.mention}\n{self.member.mention}",embed=embed, view = view)
         button.disabled = True
     
@@ -191,12 +198,14 @@ class MemberConsent(discord.ui.View):
         for items in self.children : items.disabled = True
         await interaction.response.edit_message(view=self)
         self.timeout = 0
+        self.isDone = True
         return await interaction.followup.send("too bad", view=None)
 
 class PersonRPS(discord.ui.View):
     def __init__(self, member, ctx, bet):
         self.member = member
         self.ctx = ctx
+        self.isDone = False
         self.playerVotes = {
             member : 0,
             ctx.author : 0
@@ -252,8 +261,11 @@ class PersonRPS(discord.ui.View):
                 members.updateValue(list(choicec.keys())[
                                     0].id, list(choicec.keys())[0], "commandsUsed", "commandsUsed + 1")
 
-
-
+        elif len(self.playerVotes) == 2:
+            embed = discord.Embed(
+                title=f"No one wanted to play ig!", color=discord.Color.red())
+        else:
+            return
 
         await self.ctx.edit(view=self)
         return await self.ctx.respond(embed=embed)
