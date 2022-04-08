@@ -2,11 +2,19 @@ from discord.ext import commands
 import discord
 from datetime import date, datetime,timezone
 import myBot
+import members
 from discord.commands import Option,slash_command
 abc=None
 ticketMessage = None
 timeDiff=None
 duration_in_minutes = None
+
+
+thresholds = {
+  "5" : 250,
+  "10" : 510,
+  ""
+}
 class CommandEvents(commands.Cog):
   def __init__(self,client) -> None:
       self.client=client
@@ -18,7 +26,7 @@ class CommandEvents(commands.Cog):
     print(f'{self.client.user} has logged in!')
     await self.client.change_presence(status=discord.Status.online, activity=discord.Game(name="e!help"))
   @commands.Cog.listener()
-  async def on_message(self,message):
+  async def on_message(self,message : discord.Message):
     channel =self.client.get_channel(myBot.modmailChannelId)
     if message.author==self.client.user:
       return
@@ -40,9 +48,23 @@ class CommandEvents(commands.Cog):
       embed=discord.Embed(title=f"{message.author} replied to your message",description=f"{message.content}",color=discord.Color.green())
       await myBot.current_open_queries[messageId].send(embed=embed)
       await message.channel.send(embed=discord.Embed(title="Successfully responded to the member!",color=discord.Color.green()))
+      return
+    
+
+    members.increaseXP(message.author, 5)
+    members.increaseMessagesSent(message.author)
+
+
+
+
+
+    
+
+    
+
   @slash_command(name="ping")
   async def ping(self,ctx):
-    await ctx.respond(embed=discord.Embed(title="Pong!!",description=f"{(self.client.latency)*1000}ms ",color=discord.Color.random()))
+    await ctx.respond(embed=discord.Embed(title="Pong!!",description=f"{int((self.client.latency)*1000)} ms ",color=discord.Color.random()))
   ''' @commands.command()
   async def createticket(self,ctx):
     ticketMessage = await ctx.send("Please react to the message below")

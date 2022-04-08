@@ -29,4 +29,28 @@ def getValue(valueName, id, name, fetchmany:bool):
     else:
         return cursor.fetchone()[0]
 
+def increaseXP(member, value):
+    cursor.execute(
+        f"INSERT OR IGNORE INTO ranks(user) VALUES('{member}');")
+    db.commit()
 
+    cursor.execute(f"UPDATE ranks SET xp = xp + {value} WHERE user = '{member}';")
+    db.commit()
+
+
+def getXP(valueName, id, name, fetchmany: bool):
+    cursor.execute(f"SELECT {valueName} from ranks WHERE user = {name};")
+    #print(f"SELECT {valueName} from members WHERE id = {id};")
+    if fetchmany:
+        return cursor.fetchall()[0]
+    else:
+        return cursor.fetchone()[0]
+
+
+def increaseMessagesSent(member):
+    cursor.execute(
+        f"INSERT OR IGNORE INTO ranks(user) VALUES('{member}');")
+    db.commit()
+    cursor.execute(
+        f"UPDATE ranks SET messagesSent = messagesSent + 1 WHERE user={member};")
+    db.commit()
