@@ -13,7 +13,6 @@ duration_in_minutes = None
 thresholds = {
   "5" : 250,
   "10" : 510,
-  ""
 }
 class CommandEvents(commands.Cog):
   def __init__(self,client) -> None:

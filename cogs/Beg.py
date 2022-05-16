@@ -105,6 +105,7 @@ class Beg(commands.Cog):
             embed.description = f"This command is still on cooldown. Please wait **{int(error.retry_after)} seconds**"
             embed.set_footer(text="Default cooldown time is 60 seconds!")
             return await ctx.respond(embed=embed)
+        else: print(error)
 
 
 
