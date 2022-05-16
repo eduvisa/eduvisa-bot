@@ -155,6 +155,7 @@ class QOTD(commands.Cog):
 
 
     @commands.slash_command(name="list-qotd", description="Lists the qotd questions")
+    @commands.has_role(799910127452028968)
     async def list_qotd_suggestions(self, ctx):
         async with aiosqlite.connect("qotd.db") as db:
             cur = await db.execute("SELECT * FROM Questions WHERE accepted=1")
@@ -185,6 +186,7 @@ class QOTD(commands.Cog):
 
 
     @commands.slash_command(name="qotd-delete", description="Delete a qotd suggestion")
+    @commands.has_role(799910127452028968)
     async def delete_qotd_command(self, ctx, id:int):
 
         async with aiosqlite.connect("qotd.db") as db:
