@@ -8,7 +8,8 @@ from discord.commands import slash_command, Option
 import sqlite3
 
 
-client = commands.Bot(command_prefix="e!", intents=discord.Intents.all(),debug_guilds=[819224446727487518,707278018405466253])
+# client = commands.Bot(command_prefix="e!", intents=discord.Intents.all(),debug_guilds=[819224446727487518,707278018405466253])
+client = commands.Bot(command_prefix="e!", intents=discord.Intents.all(),)
 
 client.remove_command("help")
 current_session = {}
