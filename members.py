@@ -1,6 +1,24 @@
+import discord
 import sqlite3
 db = sqlite3.connect("members.db")
 cursor=db.cursor()
+
+def addRanker(member:discord.Member):
+    cursor.execute(f"INSERT OR IGNORE INTO ranks(user) VALUES('{member}');")
+    db.commit()
+
+
+def check(member : discord.Member) -> bool:
+    cursor.execute(f"SELECT xp FROM ranks WHERE user='{member}';")
+    [currentXP] = cursor.fetchone()
+
+    cursor.execute(f"SELECT threshold FROM ranks WHERE user='{member}';")
+
+    [currentThreshold] = cursor.fetchone
+    if currentXP >= currentThreshold:
+        return True
+    else: return False
+
 
 def addMember(member, membername):
     cursor.execute(f"INSERT OR IGNORE INTO members(id, username) VALUES({member},'{membername}');")
@@ -30,10 +48,7 @@ def getValue(valueName, id, name, fetchmany:bool):
         return cursor.fetchone()[0]
 
 def increaseXP(member, value):
-    cursor.execute(
-        f"INSERT OR IGNORE INTO ranks(user) VALUES('{member}');")
-    db.commit()
-
+    addRanker(member)
     cursor.execute(f"UPDATE ranks SET xp = xp + {value} WHERE user = '{member}';")
     db.commit()
 
@@ -48,9 +63,9 @@ def getXP(valueName, id, name, fetchmany: bool):
 
 
 def increaseMessagesSent(member):
-    cursor.execute(
-        f"INSERT OR IGNORE INTO ranks(user) VALUES('{member}');")
-    db.commit()
+    addRanker(member)
     cursor.execute(
         f"UPDATE ranks SET messagesSent = messagesSent + 1 WHERE user={member};")
     db.commit()
+
+

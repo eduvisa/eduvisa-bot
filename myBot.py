@@ -99,7 +99,7 @@ async def help(ctx,command:Option(str,"Command you need help with", required=Fal
     await ctx.send(embed=embed)
 
 
-'''
+
 @client.event
 async def on_command_error(ctx,error):
   if isinstance(error,commands.MissingAnyRole):
@@ -119,7 +119,7 @@ async def on_application_command_error(ctx,error):
     except Exception:
       await ctx.send("You do not have sufficient roles/permissions to use this command")
       return
-  else:pass'''
+  else:pass
 
 lst = [f for f in os.listdir("cogs/") if os.path.isfile(os.path.join("cogs/", f))]
 no_py = [s.replace('.py', '') for s in lst]

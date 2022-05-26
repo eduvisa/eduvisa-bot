@@ -10,11 +10,6 @@ timeDiff=None
 duration_in_minutes = None
 
 
-thresholds = {
-  "5" : 250,
-  "10" : 510,
-  ""
-}
 class CommandEvents(commands.Cog):
   def __init__(self,client) -> None:
       self.client=client
@@ -49,13 +44,8 @@ class CommandEvents(commands.Cog):
       await myBot.current_open_queries[messageId].send(embed=embed)
       await message.channel.send(embed=discord.Embed(title="Successfully responded to the member!",color=discord.Color.green()))
       return
-    
-
-    members.increaseXP(message.author, 5)
+  
     members.increaseMessagesSent(message.author)
-
-
-
 
 
     

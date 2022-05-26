@@ -17,7 +17,7 @@ class Award(commands.Cog):
       return
 
     if points <= 0 :
-      await ctx.reply(embed=discord.Embed(title=":face_with_raised_eyebrow: ",color=discord.Color.purple()))
+      await ctx.reply(embed=discord.Embed(title=":face_with_raised_eyebrow:",color=discord.Color.purple()))
       return
 
     members.addPoints(member.id, member, points)

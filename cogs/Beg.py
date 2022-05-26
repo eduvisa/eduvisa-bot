@@ -8,14 +8,14 @@ numberList = []
 for i in range(0, 2001):
     numberList.append(i)
 
-for i in range(0,21):
+for i in range(0,101):
     numberList.insert(0,0)
 
 list = ["be gone",
         "coin.exe has stopped working",
         "go ask someone else",
         "the atm is out of order, sorry",
-        "bye jerk, no coins for you(Soon to be bye, no coins for you)",
+        "bye jerk, no coins for you",
         "ew no",
         "Back in my day we worked for a living",
         "can you not",
