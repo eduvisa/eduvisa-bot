@@ -2,7 +2,7 @@ import discord
 import sqlite3
 db = sqlite3.connect("members.db")
 cursor=db.cursor()
-
+thanksChannel = 1050825390941278249
 
 
 def addMember(member, membername):

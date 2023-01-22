@@ -10,8 +10,9 @@ from discord.commands import Option, slash_command
 botRoleId = 979369483258953809
 tutoringChannel = main.client.get_channel(979444728183545916)
 
+
 class NotesModal(discord.ui.Modal):
-  def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.notes = None
@@ -22,17 +23,15 @@ class NotesModal(discord.ui.Modal):
                 label="Please submit a brief paragraph of notes:",
                 required=True,
                 min_length=10,
-                max_length=4000
-            )
-        )
-    
-  async def callback(self, interaction: discord.Interaction):
-    print("e")
-    self.notes = self.children[0].value
-    await interaction.response.send_message("Thank you for the notes")
-    self.stop()
-    
-    
+                max_length=4000))
+
+    async def callback(self, interaction: discord.Interaction):
+        print("e")
+        self.notes = self.children[0].value
+        await interaction.response.send_message("Thank you for the notes")
+        self.stop()
+
+
 class MyView(discord.ui.View):
     def __init__(self, ctx, tc, client, student):
         super().__init__(timeout=0)
@@ -60,38 +59,37 @@ class MyView(discord.ui.View):
             duration_in_minutes = divmod(duration.total_seconds(), 60)[0]
             members.updateHours(self.ctx.author.id, self.ctx.author,
                                 int(duration_in_minutes))
-          
+
             tutoringChannel = self.channel.guild.get_channel(
                 979444728183545916)
-            
 
             await tutoringChannel.send(embed=discord.Embed(
                 title=f"{self.ctx.author} just ended a tutoring session",
                 description=
                 f"Tutor : {self.ctx.author} \n\n Student : {self.student} \n\n Session Duration: {duration_in_minutes} minutes",
                 color=discord.Color.nitro_pink()))
-          
+
             await self.ctx.send(embed=discord.Embed(
                 title=
                 "Your session successfully ended and your volunteer hours have been recorded",
                 color=discord.Color.green()))
-          
+            await self.channel.delete()
             modal = NotesModal(title="Submit Notes")
             await interaction.response.send_modal(modal)
             await modal.wait()
-            await self.ctx.send(embed=discord.Embed(title="Notes", description=modal.notes, color=discord.Color.green()))
-          
-            await self.channel.delete()
+            await self.ctx.send(
+                embed=discord.Embed(title="Notes",
+                                    description=modal.notes,
+                                    color=discord.Color.green()))
 
-    async def interaction_check(self,
-                                interaction: discord.Interaction) -> bool:
-        if interaction.user != self.ctx.author:
-            await interaction.followup.send(
-                "Nope, you cant do that! Only the tutor can do that! <:angrycry:800398476969377822>",
-                ephemeral=True)
-            return False
-        else:
-            return True
+            
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+      if interaction.user != self.ctx.author:
+        await interaction.followup.send("Nope, you cant do that! Only the tutor can do that <:angrycry:800398476969377822>", ephemeral=True)
+        return False
+      else:
+        return True
 
 
 class CreateSession(commands.Cog):
@@ -100,7 +98,7 @@ class CreateSession(commands.Cog):
 
     @slash_command(name="createsession",
                    description="Create a private session with a student!")
-    # @commands.has_any_role(883840894418182165, 843466315125227550, 745179262482382969, 941949149291626536)
+    @commands.has_any_role(883840894418182165, 843466315125227550, 745179262482382969, 941949149291626536)
     async def createsession(self, ctx, member: Option(
         discord.Member,
         "Student that you would like to create a session with",
