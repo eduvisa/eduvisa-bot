@@ -1,8 +1,5 @@
-from tkinter.ttk import Button
 from discord.ext import commands
 import discord
-from cogs.Convert import MyView
-import myBot
 from discord.commands import Option,slash_command
 
 #dictionary including all the links

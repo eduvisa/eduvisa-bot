@@ -1,6 +1,5 @@
 from discord.ext import commands
 import discord
-import myBot
 from discord.commands import Option,slash_command
 import members
 
