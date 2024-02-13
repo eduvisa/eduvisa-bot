@@ -7,3 +7,4 @@ pyproject.toml
 requirements.txt
 tutorInfo.db
 test.py
+__pycache__

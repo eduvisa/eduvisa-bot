@@ -5,10 +5,9 @@ import os
 import discord
 from discord.ext import commands
 from discord.commands import slash_command, Option
-import sqlite3
 
 
-client = commands.Bot(command_prefix="e!", intents=discord.Intents.all(),debug_guilds=[819224446727487518,707278018405466253])
+client = commands.Bot(command_prefix="e!", intents=discord.Intents.all(),debug_guilds=[819224446727487518,707278018405466253, 1200868797612052561])
 
 client.remove_command("help")
 current_session = {}
@@ -16,9 +15,7 @@ guildLogChannels = {}
 assignedStudent = {}
 guildThankChannels={}
 logChannel = None
-db = sqlite3.connect("members.db")
 ticketMessage = None
-cursor=db.cursor()
 abc=None
 modmailChannelId = 940828313868435516
 feedbackChannelId = 942615772700766208
